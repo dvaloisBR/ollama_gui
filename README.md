@@ -55,7 +55,7 @@ git clone https://github.com/seu-usuario/ollamagui.git
 cd ollamagui
 
 #### Instale as dependências (só tkinter + requests)
-pip install requests
+pip install -r requirements.txt
 
 #### Execute!
 python3 ollamagui.py
