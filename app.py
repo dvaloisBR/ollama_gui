@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (C) 2024 Djalma Valois Filho
 # 
-# This file is part of ollama_gui.
+# This file is part of Ollama_gui.
 # 
 # Ollama_Gui is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
