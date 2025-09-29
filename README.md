@@ -108,3 +108,95 @@ Nosso trabalho depende de infraestrutura: precisamos de hardware, internet está
 Sua doação, por menor que seja, nos permite continuar oferecendo suporte, atualizações e novas funcionalidades — sem anúncios, sem paywalls, sem compromisso com terceiros.
 
 Muito obrigado pelo apoio! 💙
+
+
+# OllamaGUI: The Official Graphical Interface Ollama Deserves!
+Master local AI models without leaving your mouse—simple, fast, and completely offline.
+
+### What is OllamaGUI?
+OllamaGUI is a lightweight and intuitive desktop application that transforms using Ollama—the framework for running AI models locally—into a visual, fluid, and accessible experience.
+
+While Ollama runs via the command line (ollama run llama3), OllamaGUI brings everything into a clean window, with:
+
+Conversation history, Easy template selection, One-click settings, Quick response copying, Light/Dark themes, Support for saved prompts
+
+#### All 100% offline, no accounts, no cloud, no spying.
+Goal: Make local AI accessible to everyone
+You don't need to be a terminal expert to use powerful AI on your machine.
+
+#### OllamaGUI was created to:
+✅ Democratize access to local AI
+✅ Replace browser chat with something more private and faster
+✅ Help developers, writers, students, and creators use LLMs without complexity
+✅ Keep your data 100% on your machine
+
+If you've ever typed ollama run and thought, "It would be great to have a pretty window for that...", OllamaGUI is the answer.
+
+#### Why use OllamaGUI?
+Total privacy; Nothing leaves your computer. No data is collected, stored, or sent. Ideal for sensitive ideas, private code, or personal brainstorming.
+
+Native speed: Uses the Ollama API directly (http://localhost:11434). Responses as fast as in a terminal. No latency from external servers.
+
+Clean and functional interface: Smoothly scrolling chat area, Large and responsive input field, Buttons to copy, clear, and save conversations. View active templates and connection status.
+
+Integrated template management: See all installed templates with one click. Automatically refresh the list. Switch between templates without restarting the application.
+
+Perfect for those who want to focus—no configuration: Open and use. Period. No Docker, no API keys, no registrations. Just you, your template, and your creativity.
+
+## Installation: Simple as it should be. Prerequisite: Having Ollama installed.
+
+How to Install Ollama? It's simple:
+Linux
+curl -fsSL https://ollama.com/install.sh | sh
+
+#### Then, install OllamaGUI:
+Clone the repository
+git clone https://github.com/your-username/ollamagui.git
+
+#### Go into the folder
+cd ollamagui
+
+#### Install the dependencies (only tkinter + requests)
+pip install -r requirements.txt
+
+#### Run!
+python3 ollamagui.py
+
+#### See how simple it is:
+Open OllamaGUI Choose your model (e.g., llama3:8b) Type your question Receive an instant answer Copy, save, or continue the conversation All with clicks. No Ctrl+C, Ctrl+V, terminal logs, or forgotten commands.
+
+Who is OllamaGUI for? Developers who want to explain code, generate tests, or summarize PRs; Students who need intelligent tutoring without tracking; Writers seeking private brainstorming; Curious people who want to experiment with AI without exposing their data; Professionals who use AI to summarize documents, translate, or organize ideas; If you value privacy, simplicity, and local power—this is your app.
+
+Stop typing commands. Start chatting.
+The future of AI isn't in the cloud. It's on your machine. And now, it has a worthy interface.
+
+#### Download OllamaGUI today!
+📦 GitHub: github.com/your-username/ollamagui
+🐍 Requires: Python 3.7+ and Ollama running locally
+💻 Works on: Windows, macOS, Linux
+🔓 License: GPL (free, open, yours!)
+
+#### Try it. Be amazed. Stay.
+Powerful AI. Zero bureaucracy. 100% yours. Made by those who believe that good technology should be simple—and private.
+
+#### Technologies used:
+Python 3.x
+Flask (a web framework)
+Python-dotenv for manipulating environment variables
+Werkzeug for serving the backend side of the application
+Jinja2 for template templating
+SQLAlchemy for relational databases
+Contribution:
+If you'd like to contribute, click the "Fork" button on this project's GitHub page, which will create a copy for your account. After that, just follow the appropriate steps defined by the GitHub community.
+
+#### License:
+This project is licensed under the GPL. You can consult the LICENSE file in the root directory for more details on the rules for using and distributing this software.  
+
+### 💖 Support this project
+Our work depends on infrastructure: we need hardware, a stable internet connection, and essential services to keep this project active and free. If you value what we do, any contribution via PIX helps a lot!
+
+✨ PIX Key: dvalois.net@gmail.com
+
+Your donation, no matter how small, allows us to continue offering support, updates, and new features—no ads, no paywalls, and no third-party commitments.
+
+Thank you so much for your support! 💙
