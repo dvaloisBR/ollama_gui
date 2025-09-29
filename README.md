@@ -109,6 +109,9 @@ Sua doação, por menor que seja, nos permite continuar oferecendo suporte, atua
 
 Muito obrigado pelo apoio! 💙
 
+---  
+---  
+
 
 # OllamaGUI: The Official Graphical Interface Ollama Deserves!
 Master local AI models without leaving your mouse—simple, fast, and completely offline.
