@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OllamaGUI - Interface Local de IA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6e49ff;
+            --primary-dark: #5a3ce0;
+            --secondary-color: #ff6b6b;
+            --bg-color: #ffffff;
+            --sidebar-bg: #f8f9fa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666;
+            --border-color: #e0e0e0;
+            --user-bubble: #6e49ff;
+            --assistant-bubble: #f1f3f5;
+            --success-color: #51cf66;
+            --warning-color: #ff922b;
+            --error-color: #ff6b6b;
+            --shadow: 0 2px 20px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --sidebar-bg: #242424;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #333;
+            --user-bubble: #6e49ff;
+            --assistant-bubble: #2d2d2d;
+            --shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo i {
+            font-size: 28px;
+        }
+
+        .new-chat-btn {
+            margin: 20px;
+            padding: 12px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .new-chat-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .conversation-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .conversation-item {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .conversation-item:hover {
+            background: rgba(110, 73, 255, 0.1);
+        }
+
+        .conversation-item.active {
+            background: rgba(110, 73, 255, 0.15);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .conversation-item i {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--error-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: var(--success-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        select {
+            background: var(--bg-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            min-width: 160px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(110, 73, 255, 0.1);
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            background: var(--sidebar-bg);
+            color: var(--text-primary);
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: var(--bg-color);
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin: auto;
+            max-width: 500px;
+            padding: 40px 20px;
+        }
+
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-message h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-message p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .user .avatar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .assistant .avatar {
+            background: var(--assistant-bubble);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .bubble {
+            background: var(--assistant-bubble);
+            padding: 16px 20px;
+            border-radius: 18px;
+            line-height: 1.5;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .user .bubble {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-bottom-right-radius: 6px;
+        }
+
+        .assistant .bubble {
+            border-bottom-left-radius: 6px;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background: var(--sidebar-bg);
+            color: var(--text-primary);
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-color);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+            align-items: flex-end;
+        }
+
+        textarea {
+            flex: 1;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            resize: none;
+            min-height: 56px;
+            max-height: 200px;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.5;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(110, 73, 255, 0.1);
+        }
+
+        textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .send-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 900px;
+            margin: 12px auto 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .secondary-btn {
+            background: var(--sidebar-bg);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+        }
+
+        .secondary-btn:hover {
+            background: var(--border-color);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Progress Modal */
+        .progress-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .progress-content {
+            background: var(--bg-color);
+            padding: 30px;
+            border-radius: var(--radius);
+            text-align: center;
+            min-width: 350px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--sidebar-bg);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* Model Store */
+        .model-store {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--bg-color);
+        }
+
+        .store-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .store-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-btn {
+            padding: 10px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .category-tab {
+            padding: 8px 16px;
+            background: var(--sidebar-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .category-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .model-card {
+            background: var(--sidebar-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .model-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .model-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .model-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .model-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .model-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .model-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .model-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .install-btn {
+            width: 100%;
+            padding: 10px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .install-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        .install-btn:disabled {
+            background: var(--success-color);
+            cursor: not-allowed;
+        }
+
+        .install-btn.installing {
+            background: var(--warning-color);
+        }
+
+        .progress-container {
+            margin-top: 8px;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .no-models {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 100;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            select {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .message {
+                max-width: 95%;
+                gap: 10px;
+            }
+
+            .avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+
+            .bubble {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .input-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .input-actions {
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+            }
+
+            .action-buttons {
+                justify-content: center;
+            }
+
+            .models-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .store-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: none;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--sidebar-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span id="appName">OllamaGUI</span>
+                </div>
+            </div>
+            
+            <button class="new-chat-btn" id="newChatBtn">
+                <i class="fas fa-plus"></i>
+                <span id="newChatText">Nova Conversa</span>
+            </button>
+
+            <button class="new-chat-btn" id="modelStoreBtn" style="background: var(--secondary-color);">
+                <i class="fas fa-store"></i>
+                <span id="downloadModelText">Loja de Modelos</span>
+            </button>
+            
+            <div class="conversation-history" id="conversationHistory">
+                <div class="conversation-item active">
+                    <i class="fas fa-comment"></i>
+                    <span>Conversa Atual</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="connection-status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="connectionStatus">Conectando...</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Usuário</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">OllamaGUI</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="controls">
+                    <select id="languageSelect">
+                        <option value="pt">🇧🇷 Português</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="es">🇪🇸 Español</option>
+                    </select>
+                    
+                    <select id="modelSelect">
+                        <option value="">Carregando modelos...</option>
+                    </select>
+                    
+                    <select id="themeSelect">
+                        <option value="auto">🌓 Automático</option>
+                        <option value="light">☀️ Claro</option>
+                        <option value="dark">🌙 Escuro</option>
+                    </select>
+                </div>
+                
+                <div class="top-bar-actions">
+                    <button class="icon-btn" id="exportBtn" title="Exportar conversa">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="icon-btn" id="settingsBtn" title="Configurações">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Chat Interface -->
+            <div class="chat-container" id="chatContainer">
+                <div class="welcome-message">
+                    <div class="welcome-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h2 id="welcomeTitle">Bem-vindo ao OllamaGUI</h2>
+                    <p id="welcomeText">Converse com modelos de IA localmente</p>
+                    <div class="connection-status" style="margin-top: 20px;">
+                        <div class="status-dot" id="welcomeStatusDot"></div>
+                        <span id="welcomeStatus">Conectando ao Ollama...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Store -->
+            <div class="model-store" id="modelStore">
+                <div class="store-header">
+                    <h1 class="store-title" id="storeTitle">Loja de Modelos</h1>
+                    <div class="search-box">
+                        <input type="text" id="modelSearch" class="search-input" placeholder="Buscar modelos...">
+                        <button class="search-btn" id="searchBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="category-tabs">
+                    <div class="category-tab active" data-category="all">Todos</div>
+                    <div class="category-tab" data-category="popular">Populares</div>
+                    <div class="category-tab" data-category="new">Novos</div>
+                    <div class="category-tab" data-category="code">Programação</div>
+                    <div class="category-tab" data-category="chat">Chat</div>
+                </div>
+
+                <div id="modelsContent">
+                    <div class="no-models">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando modelos disponíveis...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea id="textInput" placeholder="Digite sua mensagem..." rows="1"></textarea>
+                    <button class="send-btn" id="sendBtn" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <div class="input-actions">
+                    <div class="action-buttons">
+                        <button class="secondary-btn" id="clearBtn">
+                            <i class="fas fa-trash"></i>
+                            <span id="clearText">Limpar</span>
+                        </button>
+                        <button class="secondary-btn" id="historyBtn">
+                            <i class="fas fa-history"></i>
+                            <span>Histórico</span>
+                        </button>
+                    </div>
+                    
+                    <div class="typing-indicator" id="typingIndicator">
+                        <span id="typingText">Digitando</span>
+                        <div class="dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress Modal -->
+    <div class="progress-modal" id="progressModal">
+        <div class="progress-content">
+            <h3 id="progressTitle">Carregando Modelo</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <div id="progressText">Iniciando carregamento...</div>
+        </div>
+    </div>
+
+    <script>
+        // Classe principal do OllamaGUI
+        class OllamaGUI {
+            constructor() {
+                this.baseUrl = window.location.origin;
+                this.currentModel = '';
+                this.currentLanguage = 'pt';
+                this.currentTheme = 'auto';
+                this.isGenerating = false;
+                this.conversationHistory = [];
+                this.conversations = [];
+                this.translations = {};
+                this.currentView = 'chat'; // 'chat' or 'store'
+                this.downloadingModels = new Set();
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.loadSettings();
+                this.init();
+            }
+            
+            initializeElements() {
+                this.elements = {
+                    // Sidebar
+                    appName: document.getElementById('appName'),
+                    newChatBtn: document.getElementById('newChatBtn'),
+                    newChatText: document.getElementById('newChatText'),
+                    modelStoreBtn: document.getElementById('modelStoreBtn'),
+                    downloadModelText: document.getElementById('downloadModelText'),
+                    conversationHistory: document.getElementById('conversationHistory'),
+                    statusDot: document.getElementById('statusDot'),
+                    connectionStatus: document.getElementById('connectionStatus'),
+                    mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+                    
+                    // Top Bar
+                    languageSelect: document.getElementById('languageSelect'),
+                    modelSelect: document.getElementById('modelSelect'),
+                    themeSelect: document.getElementById('themeSelect'),
+                    exportBtn: document.getElementById('exportBtn'),
+                    settingsBtn: document.getElementById('settingsBtn'),
+                    
+                    // Chat
+                    chatContainer: document.getElementById('chatContainer'),
+                    welcomeTitle: document.getElementById('welcomeTitle'),
+                    welcomeText: document.getElementById('welcomeText'),
+                    welcomeStatusDot: document.getElementById('welcomeStatusDot'),
+                    welcomeStatus: document.getElementById('welcomeStatus'),
+                    
+                    // Input
+                    textInput: document.getElementById('textInput'),
+                    sendBtn: document.getElementById('sendBtn'),
+                    clearBtn: document.getElementById('clearBtn'),
+                    clearText: document.getElementById('clearText'),
+                    historyBtn: document.getElementById('historyBtn'),
+                    typingIndicator: document.getElementById('typingIndicator'),
+                    typingText: document.getElementById('typingText'),
+                    
+                    // Model Store
+                    modelStore: document.getElementById('modelStore'),
+                    storeTitle: document.getElementById('storeTitle'),
+                    modelSearch: document.getElementById('modelSearch'),
+                    searchBtn: document.getElementById('searchBtn'),
+                    modelsContent: document.getElementById('modelsContent'),
+                    
+                    // Progress
+                    progressModal: document.getElementById('progressModal'),
+                    progressBar: document.getElementById('progressBar'),
+                    progressText: document.getElementById('progressText'),
+                    progressTitle: document.getElementById('progressTitle')
+                };
+            }
+            
+            setupEventListeners() {
+                // Eventos do input
+                this.elements.textInput.addEventListener('input', () => this.handleInput());
+                this.elements.textInput.addEventListener('keydown', (e) => this.handleKeydown(e));
+                
+                // Eventos dos botões
+                this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.elements.newChatBtn.addEventListener('click', () => this.newConversation());
+                this.elements.clearBtn.addEventListener('click', () => this.clearConversation());
+                this.elements.exportBtn.addEventListener('click', () => this.exportConversation());
+                this.elements.mobileMenuBtn.addEventListener('click', () => this.toggleMobileMenu());
+                this.elements.modelStoreBtn.addEventListener('click', () => this.showModelStore());
+                this.elements.searchBtn.addEventListener('click', () => this.searchModels());
+                this.elements.modelSearch.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') this.searchModels();
+                });
+                
+                // Eventos dos selects
+                this.elements.languageSelect.addEventListener('change', () => this.changeLanguage());
+                this.elements.modelSelect.addEventListener('change', () => this.changeModel());
+                this.elements.themeSelect.addEventListener('change', () => this.changeTheme());
+                
+                // Eventos das categorias
+                document.querySelectorAll('.category-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.filterModelsByCategory(e.target.dataset.category);
+                    });
+                });
+            }
+            
+            async init() {
+                console.log('🚀 Iniciando OllamaGUI...');
+                await this.loadTranslations();
+                await this.checkConnection();
+                await this.loadModels();
+                this.applyTheme();
+                this.updateStatus('✅ Pronto para conversar', true);
+            }
+            
+            async loadTranslations() {
+                try {
+                    const response = await fetch(`${this.baseUrl}/api/translations/${this.currentLanguage}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.translations = data.translations;
+                        this.updateInterfaceTexts();
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao carregar traduções:', error);
+                }
+            }
+            
+            updateInterfaceTexts() {
+                const t = this.translations;
+                
+                // Atualiza todos os textos
+                document.querySelectorAll('[id]').forEach(element => {
+                    const key = element.id.replace(/([A-Z])/g, '_$1').toLowerCase();
+                    if (t[key] && element.textContent !== undefined) {
+                        element.textContent = t[key];
+                    }
+                });
+                
+                // Placeholders
+                if (this.elements.textInput) {
+                    this.elements.textInput.placeholder = t.type_message || 'Digite sua mensagem...';
+                }
+                if (this.elements.modelSearch) {
+                    this.elements.modelSearch.placeholder = t.search_models || 'Buscar modelos...';
+                }
+            }
+            
+            async checkConnection() {
+                try {
+                    const response = await fetch(`${this.baseUrl}/api/health`);
+                    const data = await response.json();
+                    
+                    const isConnected = data.ollama === 'connected';
+                    this.updateStatus(isConnected ? 
+                        this.translations.connected || 'Conectado' : 
+                        this.translations.disconnected || 'Desconectado', 
+                        isConnected
+                    );
+                    
+                    return isConnected;
+                } catch (error) {
+                    this.updateStatus('Erro de conexão', false);
+                    return false;
+                }
+            }
+            
+            updateStatus(message, connected) {
+                const dots = document.querySelectorAll('.status-dot');
+                const statusTexts = document.querySelectorAll('#connectionStatus, #welcomeStatus');
+                
+                dots.forEach(dot => {
+                    dot.classList.toggle('connected', connected);
+                });
+                
+                statusTexts.forEach(element => {
+                    if (element) element.textContent = message;
+                });
+            }
+            
+            async loadModels() {
+                try {
+                    console.log('🔄 Carregando modelos...');
+                    this.elements.modelSelect.innerHTML = `<option value="">${this.translations.loading_models || 'Carregando modelos...'}</option>`;
+                    
+                    const response = await fetch(`${this.baseUrl}/api/models`);
+                    const data = await response.json();
+                    
+                    console.log('📦 Dados recebidos:', data);
+                    
+                    if (data.models && data.models.length > 0) {
+                        this.populateModelSelect(data.models);
+                        this.currentModel = data.models[0];
+                        console.log(`✅ ${data.models.length} modelos carregados`);
+                        
+                        // Atualiza status com info dos modelos
+                        if (data.connected) {
+                            this.updateStatus(`${this.translations.connected || 'Conectado'} - ${data.models.length} modelos`, true);
+                        }
+                    } else {
+                        console.error('❌ Nenhum modelo recebido');
+                        this.elements.modelSelect.innerHTML = `<option value="">${this.translations.error_loading || 'Erro ao carregar'}</option>`;
+                        this.updateStatus('Erro ao carregar modelos', false);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao carregar modelos:', error);
+                    this.elements.modelSelect.innerHTML = `<option value="">${this.translations.error_loading || 'Erro ao carregar'}</option>`;
+                    this.updateStatus('Erro de conexão', false);
+                }
+            }
+            
+            populateModelSelect(models) {
+                console.log('📝 Populando select com modelos:', models);
+                this.elements.modelSelect.innerHTML = '';
+                
+                models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    this.elements.modelSelect.appendChild(option);
+                });
+                
+                if (models.length > 0) {
+                    this.currentModel = models[0];
+                    this.elements.modelSelect.value = models[0];
+                    console.log('✅ Modelo selecionado:', this.currentModel);
+                }
+            }
+            
+            async showModelStore() {
+                this.currentView = 'store';
+                this.elements.chatContainer.style.display = 'none';
+                this.elements.modelStore.style.display = 'block';
+                this.elements.modelStoreBtn.style.background = 'var(--primary-color)';
+                this.elements.newChatBtn.style.background = 'var(--secondary-color)';
+                
+                await this.loadWebModels();
+            }
+            
+            async showChat() {
+                this.currentView = 'chat';
+                this.elements.chatContainer.style.display = 'flex';
+                this.elements.modelStore.style.display = 'none';
+                this.elements.modelStoreBtn.style.background = 'var(--secondary-color)';
+                this.elements.newChatBtn.style.background = 'var(--primary-color)';
+            }
+            
+            async loadWebModels() {
+                try {
+                    this.elements.modelsContent.innerHTML = `
+                        <div class="no-models">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>${this.translations.loading_models || 'Carregando modelos...'}</p>
+                        </div>
+                    `;
+                    
+                    const response = await fetch(`${this.baseUrl}/api/web-models`);
+                    const data = await response.json();
+                    
+                    if (data.categories) {
+                        this.renderModelStore(data.categories, data.installed_models);
+                    } else {
+                        throw new Error('Dados inválidos');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao carregar modelos da web:', error);
+                    this.elements.modelsContent.innerHTML = `
+                        <div class="no-models">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao carregar modelos: ${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            renderModelStore(categories, installedModels) {
+                let html = '';
+                
+                // Renderiza cada categoria
+                for (const [categoryName, models] of Object.entries(categories)) {
+                    if (models.length === 0) continue;
+                    
+                    const categoryTitle = this.translations[`${categoryName}_models`] || 
+                                        categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
+                    
+                    html += `
+                        <div class="category-section" data-category="${categoryName}">
+                            <h2 class="category-title">${categoryTitle}</h2>
+                            <div class="models-grid">
+                    `;
+                    
+                    models.forEach(model => {
+                        const isInstalled = installedModels.includes(model.name);
+                        const isDownloading = this.downloadingModels.has(model.name);
+                        const size = this.formatFileSize(model.size);
+                        
+                        html += `
+                            <div class="model-card">
+                                <div class="model-header">
+                                    <div class="model-name">${model.short_name}</div>
+                                    <div class="model-tag">${model.tag}</div>
+                                </div>
+                                <div class="model-stats">
+                                    <div class="model-stat">
+                                        <i class="fas fa-download"></i>
+                                        ${model.pulls?.toLocaleString() || '0'}
+                                    </div>
+                                    <div class="model-stat">
+                                        <i class="fas fa-hdd"></i>
+                                        ${size}
+                                    </div>
+                                </div>
+                                <button class="install-btn ${isInstalled ? 'installed' : ''} ${isDownloading ? 'installing' : ''}" 
+                                        onclick="app.installModel('${model.name}')"
+                                        ${isInstalled ? 'disabled' : ''}
+                                        ${isDownloading ? 'disabled' : ''}>
+                                    ${isInstalled ? (this.translations.installed || 'Instalado') : 
+                                      isDownloading ? (this.translations.installing || 'Instalando...') : 
+                                      (this.translations.install || 'Instalar')}
+                                </button>
+                                ${isDownloading ? `
+                                    <div class="progress-container">
+                                        <div class="progress-text" id="progress-${model.name}">0%</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                this.elements.modelsContent.innerHTML = html;
+                
+                // Inicia monitoramento de progresso para modelos em download
+                this.monitorDownloadProgress();
+            }
+            
+            async installModel(modelName) {
+                if (this.downloadingModels.has(modelName)) return;
+                
+                try {
+                    this.downloadingModels.add(modelName);
+                    this.renderModelStore(); // Re-render para atualizar botões
+                    
+                    const response = await fetch(`${this.baseUrl}/api/download-model`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: modelName,
+                            language: this.currentLanguage
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error);
+                    }
+                    
+                    console.log(`✅ Download iniciado: ${modelName}`);
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao iniciar download:', error);
+                    this.downloadingModels.delete(modelName);
+                    this.renderModelStore();
+                    alert(`Erro: ${error.message}`);
+                }
+            }
+            
+            async monitorDownloadProgress() {
+                for (const modelName of this.downloadingModels) {
+                    try {
+                        const response = await fetch(`${this.baseUrl}/api/download-progress/${encodeURIComponent(modelName)}`);
+                        const progress = await response.json();
+                        
+                        const progressElement = document.getElementById(`progress-${modelName}`);
+                        if (progressElement) {
+                            progressElement.textContent = `${progress.progress}% - ${progress.message}`;
+                        }
+                        
+                        if (progress.status === 'completed' || progress.status === 'error') {
+                            this.downloadingModels.delete(modelName);
+                            // Recarrega a lista de modelos locais e a loja
+                            await this.loadModels();
+                            await this.loadWebModels();
+                        }
+                    } catch (error) {
+                        console.error('❌ Erro ao verificar progresso:', error);
+                    }
+                }
+                
+                // Continua monitorando se ainda há downloads
+                if (this.downloadingModels.size > 0) {
+                    setTimeout(() => this.monitorDownloadProgress(), 2000);
+                }
+            }
+            
+            formatFileSize(bytes) {
+                if (bytes === 0) return "0 B";
+                
+                const sizes = ["B", "KB", "MB", "GB", "TB"];
+                let i = 0;
+                while (bytes >= 1024 && i < sizes.length - 1) {
+                    bytes /= 1024;
+                    i++;
+                }
+                
+                return `${bytes.toFixed(1)} ${sizes[i]}`;
+            }
+            
+            async searchModels() {
+                const query = this.elements.modelSearch.value.trim();
+                if (!query) {
+                    await this.loadWebModels();
+                    return;
+                }
+                
+                try {
+                    this.elements.modelsContent.innerHTML = `
+                        <div class="no-models">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Buscando modelos...</p>
+                        </div>
+                    `;
+                    
+                    const response = await fetch(`${this.baseUrl}/api/search-models?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    if (data.results) {
+                        this.renderSearchResults(data.results, data.installed_models);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro na busca:', error);
+                }
+            }
+            
+            renderSearchResults(models, installedModels) {
+                if (models.length === 0) {
+                    this.elements.modelsContent.innerHTML = `
+                        <div class="no-models">
+                            <i class="fas fa-search"></i>
+                            <p>Nenhum modelo encontrado para sua busca.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = `
+                    <div class="category-section">
+                        <h2 class="category-title">Resultados da Busca (${models.length})</h2>
+                        <div class="models-grid">
+                `;
+                
+                models.forEach(model => {
+                    const isInstalled = installedModels.includes(model.name);
+                    const isDownloading = this.downloadingModels.has(model.name);
+                    const size = this.formatFileSize(model.size);
+                    
+                    html += `
+                        <div class="model-card">
+                            <div class="model-header">
+                                <div class="model-name">${model.short_name}</div>
+                                <div class="model-tag">${model.tag}</div>
+                            </div>
+                            <div class="model-stats">
+                                <div class="model-stat">
+                                    <i class="fas fa-download"></i>
+                                    ${model.pulls?.toLocaleString() || '0'}
+                                </div>
+                                <div class="model-stat">
+                                    <i class="fas fa-hdd"></i>
+                                    ${size}
+                                </div>
+                            </div>
+                            <button class="install-btn ${isInstalled ? 'installed' : ''} ${isDownloading ? 'installing' : ''}" 
+                                    onclick="app.installModel('${model.name}')"
+                                    ${isInstalled ? 'disabled' : ''}
+                                    ${isDownloading ? 'disabled' : ''}>
+                                ${isInstalled ? (this.translations.installed || 'Instalado') : 
+                                  isDownloading ? (this.translations.installing || 'Instalando...') : 
+                                  (this.translations.install || 'Instalar')}
+                            </button>
+                            ${isDownloading ? `
+                                <div class="progress-container">
+                                    <div class="progress-text" id="progress-${model.name}">0%</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+                
+                this.elements.modelsContent.innerHTML = html;
+                this.monitorDownloadProgress();
+            }
+            
+            filterModelsByCategory(category) {
+                const sections = document.querySelectorAll('.category-section');
+                
+                sections.forEach(section => {
+                    if (category === 'all' || section.dataset.category === category) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            }
+            
+            // ... (mantenha os outros métodos: changeLanguage, changeModel, changeTheme, handleInput, handleKeydown, sendMessage, etc.)
+            
+            changeLanguage() {
+                this.currentLanguage = this.elements.languageSelect.value;
+                localStorage.setItem('language', this.currentLanguage);
+                this.loadTranslations();
+            }
+            
+            changeModel() {
+                this.currentModel = this.elements.modelSelect.value;
+                localStorage.setItem('model', this.currentModel);
+                console.log('🔀 Modelo alterado para:', this.currentModel);
+            }
+            
+            changeTheme() {
+                this.currentTheme = this.elements.themeSelect.value;
+                localStorage.setItem('theme', this.currentTheme);
+                this.applyTheme();
+            }
+            
+            applyTheme() {
+                const theme = this.currentTheme === 'auto' ? 
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 
+                    this.currentTheme;
+                
+                document.body.setAttribute('data-theme', theme);
+            }
+            
+            handleInput() {
+                const message = this.elements.textInput.value.trim();
+                this.elements.sendBtn.disabled = message === '' || this.isGenerating;
+                
+                // Auto-resize
+                this.elements.textInput.style.height = 'auto';
+                this.elements.textInput.style.height = Math.min(this.elements.textInput.scrollHeight, 120) + 'px';
+            }
+            
+            handleKeydown(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            }
+            
+            async sendMessage() {
+                const message = this.elements.textInput.value.trim();
+                if (!message || this.isGenerating) return;
+                
+                this.isGenerating = true;
+                this.elements.sendBtn.disabled = true;
+                
+                // Adiciona mensagem do usuário
+                this.addMessage('user', message);
+                this.elements.textInput.value = '';
+                this.handleInput();
+                
+                // Mostra indicador de digitação
+                this.showTyping(true);
+                
+                try {
+                    console.log('📤 Enviando mensagem para:', this.currentModel);
+                    const response = await fetch(`${this.baseUrl}/api/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            model: this.currentModel,
+                            language: this.currentLanguage
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Resposta recebida');
+                        this.addMessage('assistant', data.response);
+                    } else {
+                        const error = await response.json();
+                        console.error('❌ Erro na resposta:', error);
+                        this.addMessage('assistant', `❌ Erro: ${error.error}`);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro de conexão:', error);
+                    this.addMessage('assistant', `❌ Erro de conexão: ${error.message}`);
+                } finally {
+                    this.isGenerating = false;
+                    this.showTyping(false);
+                    this.elements.sendBtn.disabled = false;
+                    this.elements.textInput.focus();
+                }
+            }
+            
+            addMessage(role, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${role}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'avatar';
+                avatar.innerHTML = role === 'user' ? 
+                    '<i class="fas fa-user"></i>' : 
+                    '<i class="fas fa-robot"></i>';
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.textContent = content;
+                
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(bubble);
+                
+                // Remove mensagem de boas-vindas se for a primeira mensagem
+                const welcomeMessage = this.elements.chatContainer.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.remove();
+                }
+                
+                this.elements.chatContainer.appendChild(messageDiv);
+                this.scrollToBottom();
+                
+                // Salva no histórico
+                this.conversationHistory.push({ role, content });
+            }
+            
+            showTyping(show) {
+                this.elements.typingIndicator.style.display = show ? 'flex' : 'none';
+                if (show) {
+                    this.scrollToBottom();
+                }
+            }
+            
+            scrollToBottom() {
+                this.elements.chatContainer.scrollTop = this.elements.chatContainer.scrollHeight;
+            }
+            
+            newConversation() {
+                this.conversationHistory = [];
+                this.elements.chatContainer.innerHTML = `
+                    <div class="welcome-message">
+                        <div class="welcome-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h2 id="welcomeTitle">${this.translations.welcome || 'Bem-vindo'}</h2>
+                        <p id="welcomeText">${this.translations.welcome_message || 'Converse com modelos de IA localmente'}</p>
+                    </div>
+                `;
+                console.log('🆕 Nova conversa iniciada');
+                this.showChat();
+            }
+            
+            clearConversation() {
+                if (confirm('Tem certeza que deseja limpar a conversa?')) {
+                    this.newConversation();
+                }
+            }
+            
+            async exportConversation() {
+                if (this.conversationHistory.length === 0) {
+                    alert('Nenhuma conversa para exportar');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${this.baseUrl}/api/export`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            conversation: this.conversationHistory,
+                            format: 'txt'
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Cria e baixa o arquivo
+                        const blob = new Blob([data.content], { type: 'text/plain' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = data.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        alert('Erro ao exportar conversa');
+                    }
+                } catch (error) {
+                    console.error('Erro ao exportar:', error);
+                    alert('Erro ao exportar conversa');
+                }
+            }
+            
+            toggleMobileMenu() {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.toggle('open');
+            }
+            
+            loadSettings() {
+                // Carrega configurações salvas
+                const savedLanguage = localStorage.getItem('language');
+                const savedModel = localStorage.getItem('model');
+                const savedTheme = localStorage.getItem('theme');
+                
+                if (savedLanguage) {
+                    this.currentLanguage = savedLanguage;
+                    this.elements.languageSelect.value = savedLanguage;
+                }
+                
+                if (savedModel) {
+                    this.currentModel = savedModel;
+                }
+                
+                if (savedTheme) {
+                    this.currentTheme = savedTheme;
+                    this.elements.themeSelect.value = savedTheme;
+                }
+            }
+        }
+
+        // Inicializa a aplicação quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new OllamaGUI();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# requirements-dev.txt (opcional)
+Flask==2.3.3
+requests==2.31.0
+python-dotenv==1.0.0
+Werkzeug==2.3.7
+Flask-CORS==4.0.0
+# Para desenvolvimento:
+black==23.9.1        # Formatação de código
+flake8==6.0.0        # Linting
+pytest==7.4.2        # Testes
