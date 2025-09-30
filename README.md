@@ -55,20 +55,24 @@ git clone https://github.com/seu-usuario/ollamagui.git
 cd ollama_gui
 
 #### Instale a venv e as dependências (só tkinter + requests)
-python -m venv venv
-source venv/bin/activatepython 
-pip install -r requirements.txt
+python -m venv venv  
+source venv/bin/activatepython  
+pip install -r requirements.txt  
 
 #### Execute!
-python3 app.py
+python app.py
 
 ## Veja como é simples:
-Abra o OllamaGUI
+Direcione o seu navegador para:  
+http://localhost:5000  
+Escolha a linguagem
 Escolha seu modelo (ex: llama3:8b)
 Digite sua pergunta
 Receba resposta instantânea
 Copie, salve ou continue a conversa
-Tudo com cliques. Nada de Ctrl+C, Ctrl+V, logs no terminal ou comandos esquecidos.
+Tudo com cliques.  
+Nada de Ctrl+C, Ctrl+V, logs no terminal ou comandos esquecidos.  
+
 
 ## Para quem é o OllamaGUI?
 Desenvolvedores que querem explicar código, gerar testes ou resumir PRs, Estudantes que precisam de tutoria inteligente sem rastreamento, Escritores que buscam brainstorming privado, Curiosos que querem experimentar IA sem expor seus dados, Profissionais que usam IA para resumir documentos, traduzir ou organizar ideias, Se você valoriza privacidade, simplicidade e poder local — este é seu app. 
