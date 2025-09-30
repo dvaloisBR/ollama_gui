@@ -52,13 +52,15 @@ curl -fsSL https://ollama.com/install.sh | sh
 git clone https://github.com/seu-usuario/ollamagui.git
 
 #### Entre na pasta
-cd ollamagui
+cd ollama_gui
 
-#### Instale as dependências (só tkinter + requests)
+#### Instale a venv e as dependências (só tkinter + requests)
+python -m venv venv
+source venv/bin/activatepython 
 pip install -r requirements.txt
 
 #### Execute!
-python3 ollamagui.py
+python3 app.py
 
 ## Veja como é simples:
 Abra o OllamaGUI
